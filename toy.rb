@@ -1,4 +1,5 @@
 #!/usr/bin/ruby19
+# Motivating toy
 
 def each_number
   (1..5).each do |n|
