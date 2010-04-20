@@ -16,7 +16,7 @@ module MakeSharedIterator
         fibers = options[:methods].map {|m| Fiber.new { send m } }
         fibers.each(&:resume)
 
-        method("#{options[:for]}_orig".to_sym).call do |n|
+        send "#{options[:for]}_orig".to_sym do |n|
           fibers.each {|f| f.resume(n) }
         end
       end
