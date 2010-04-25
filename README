@@ -1,15 +1,18 @@
 
 KNOWN ISSUES:
-* Doesn't work when `each_number' handles the value returned by the block, e.g.:
+* [WONTFIX] Doesn't work when `each_number' handles the value returned by the block, e.g.:
       def each_block
         (1..5).each do |x|
           break if (yield x).nil?
         end
       end
+  In this case you shouldn't use make_shared_iterator.
 
-* `make_shared_iterator' "breaks" your class: it spoils the iterating
+* [FIXED] `make_shared_iterator' "breaks" your class: it spoils the iterating
   method (like `each_number') you give to it. You can't use
   `make_shared_iterator' again with the same iterating method.
 
 
-This module is based on an idea suggested by Artem Vorozhtsov (that's not an issue actually).
+This module is based on an idea suggested by Artem Vorozhtsov (that's not an issue actually):
+http://acm.mipt.ru/twiki/bin/view/Ruby/RubyCourseLecture14
+http://acm.mipt.ru/twiki/bin/view/Ruby/RubyCourseLecture15
