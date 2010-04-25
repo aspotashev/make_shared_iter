@@ -8,12 +8,7 @@ module MakeSharedIterator
       @@iter_sharing_fibers ||= {}
       @@iter_sharing_patched_methods ||= {}
 
-      if not @@iter_sharing_patched_methods.has_key?(options[:for])
-        @@iter_sharing_patched_methods[options[:for]] = true
-        alias_method "#{options[:for]}_orig", options[:for]
-      end
-
-      define_method(options[:for].to_sym) do |*args,&block|
+      define_method("#{options[:for]}_patched") do |*args,&block|
         if @@iter_sharing_fibers.has_key?(Fiber.current.object_id)
           loop do
             block[Fiber.yield]
@@ -24,6 +19,12 @@ module MakeSharedIterator
       end
 
       define_method(new_method) do
+        if not @@iter_sharing_patched_methods.has_key?(options[:for])
+          @@iter_sharing_patched_methods[options[:for]] = true
+          self.class.send :alias_method, "#{options[:for]}_orig", options[:for]
+          self.class.send :alias_method, options[:for], "#{options[:for]}_patched"
+        end
+
         fibers = options[:methods].map {|m| Fiber.new { send m } }
         fibers.each {|f| @@iter_sharing_fibers[f.object_id] = true }
         fibers.each(&:resume)

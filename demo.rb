@@ -47,3 +47,6 @@ m.do_it
 m.squares
 m.do_it
 m.do_powers
+
+n = My.new
+n.do_it
