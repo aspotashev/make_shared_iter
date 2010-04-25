@@ -13,13 +13,13 @@ class My
   end
 
   def squares
-    each_number("hello") do |n|
+    each_number do |n|
       puts n**2
     end
   end
 
   def powers
-    each_number("hello2") do |n|
+    each_number do |n|
       puts 2**n
     end
   end
