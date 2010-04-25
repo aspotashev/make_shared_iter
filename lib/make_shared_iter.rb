@@ -7,7 +7,8 @@ module MakeSharedIterator
 
     (self.is_a?(Module) ? self : self.singleton_class).class_eval do
       @@iter_sharing_fibers ||= {}
-      @@iter_sharing_patched_methods ||= {}
+      @@iter_sharing_patched_methods ||= Hash.new(0)
+      @@iter_sharing_lock ||= Mutex.new
 
       define_method("#{options[:for]}_patched") do |*args,&block|
         if @@iter_sharing_fibers.has_key?(Fiber.current.object_id)
@@ -20,10 +21,12 @@ module MakeSharedIterator
       end
 
       define_method(new_method) do
-        if not @@iter_sharing_patched_methods.has_key?(options[:for])
-          @@iter_sharing_patched_methods[options[:for]] = true
-          self.class.send :alias_method, "#{options[:for]}_orig", options[:for]
-          self.class.send :alias_method, options[:for], "#{options[:for]}_patched"
+        @@iter_sharing_lock.synchronize do
+          if @@iter_sharing_patched_methods[options[:for]] == 0
+            self.class.send :alias_method, "#{options[:for]}_orig", options[:for]
+            self.class.send :alias_method, options[:for], "#{options[:for]}_patched"
+          end
+          @@iter_sharing_patched_methods[options[:for]] += 1
         end
 
         fibers = options[:methods].map {|m| Fiber.new { send m } }
@@ -35,6 +38,12 @@ module MakeSharedIterator
         end
 
         fibers.each {|f| @@iter_sharing_fibers.delete(f.object_id) }
+
+        @@iter_sharing_lock.synchronize do
+          if (@@iter_sharing_patched_methods[options[:for]] -= 1) == 0
+            self.class.send :alias_method, options[:for], "#{options[:for]}_orig"
+          end
+        end
       end
     end
   end
