@@ -33,5 +33,8 @@ class My
     :for => :each_number
 end
 
-My.new.do_it
+m = My.new
+m.do_it
+m.squares
+m.do_it
 
