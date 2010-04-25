@@ -1,4 +1,5 @@
 require 'fiber'
+require 'lib/meta_ext'
 
 module MakeSharedIterator
   def make_shared_iterator(new_method,options)
