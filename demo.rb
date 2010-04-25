@@ -24,6 +24,12 @@ class My
     end
   end
 
+  def cubes
+    each_number do |n|
+      puts n**3
+    end
+  end
+
   #===============================
 
   extend MakeSharedIterator
@@ -31,10 +37,13 @@ class My
   make_shared_iterator :do_it,
     :methods => [:squares, :powers],
     :for => :each_number
+  make_shared_iterator :do_powers,
+    :methods => [:squares, :cubes],
+    :for => :each_number
 end
 
 m = My.new
 m.do_it
 m.squares
 m.do_it
-
+m.do_powers

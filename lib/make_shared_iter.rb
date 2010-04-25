@@ -5,9 +5,13 @@ module MakeSharedIterator
     raise if not options[:for] or not options[:methods]
 
     (self.is_a?(Module) ? self : self.singleton_class).class_eval do
-      alias_method "#{options[:for]}_orig", options[:for]
-
       @@iter_sharing_fibers ||= {}
+      @@iter_sharing_patched_methods ||= {}
+
+      if not @@iter_sharing_patched_methods.has_key?(options[:for])
+        @@iter_sharing_patched_methods[options[:for]] = true
+        alias_method "#{options[:for]}_orig", options[:for]
+      end
 
       define_method(options[:for].to_sym) do |*args,&block|
         if @@iter_sharing_fibers.has_key?(Fiber.current.object_id)
