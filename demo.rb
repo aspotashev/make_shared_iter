@@ -32,7 +32,7 @@ class My
 
   #===============================
 
-  extend MakeSharedIterator
+  include MakeSharedIterator
 
   make_shared_iterator :do_it,
     :methods => [:squares, :powers],
